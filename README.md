@@ -1,5 +1,22 @@
 # DSA-MINI-PROJECT
+
 Hospital Emergency Room Management System Manage patients based on severity (priority). Highest severity gets immediate service. Use Heap (Priority Queue)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #include <stdio.h>
 #include <string.h>
 
