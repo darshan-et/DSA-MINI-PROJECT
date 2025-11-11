@@ -1,0 +1,185 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#define MAX 100  /* Maximum number of patients */
+#define NAME_LEN 50
+
+/* Structure to represent a patient */
+struct Patient {
+    char name[NAME_LEN];
+    int age;
+    int severity; /* Higher number = higher priority */
+    long arrival; /* smaller = arrived earlier */
+};
+
+struct Patient heap[MAX];
+int heapSize = 0;
+long nextArrival = 0; /* increasing counter for arrival order */
+
+/* Swap two patients */
+void swap(struct Patient *a, struct Patient *b) {
+    struct Patient temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+/* Return 1 if a has higher priority than b, else 0.
+   Higher severity wins. If equal severity, earlier arrival wins. */
+int compare(const struct Patient *a, const struct Patient *b) {
+    if (a->severity > b->severity) return 1;
+    if (a->severity < b->severity) return 0;
+    /* equal severity: earlier arrival (smaller arrival) has priority */
+    return (a->arrival < b->arrival);
+}
+
+/* Reheap up to maintain max-heap property */
+void reheapUp(int i) {
+    while (i != 0) {
+        int parent = (i - 1) / 2;
+        if (compare(&heap[i], &heap[parent])) {
+            swap(&heap[i], &heap[parent]);
+            i = parent;
+        } else break;
+    }
+}
+
+/* Heapify (reheap down) */
+void heapify(int n, int i) {
+    int largest = i;
+    int left = 2 * i + 1;
+    int right = 2 * i + 2;
+
+    if (left < n && compare(&heap[left], &heap[largest]))
+        largest = left;
+
+    if (right < n && compare(&heap[right], &heap[largest]))
+        largest = right;
+
+    if (largest != i) {
+        swap(&heap[i], &heap[largest]);
+        heapify(n, largest);
+    }
+}
+
+/* Insert a new patient into the heap */
+void insertPatient(const char *name, int age, int severity) {
+    if (heapSize >= MAX) {
+        printf("Queue full: cannot add more patients.\n");
+        return;
+    }
+    int i = heapSize;
+    strncpy(heap[i].name, name, NAME_LEN - 1);
+    heap[i].name[NAME_LEN - 1] = '\0';
+    heap[i].age = age;
+    heap[i].severity = severity;
+    heap[i].arrival = nextArrival++; /* assign then increment */
+    heapSize++;
+    reheapUp(i);
+    printf("Patient '%s' added (age %d, severity %d).\n", name, age, severity);
+}
+
+/* Serve the patient with highest priority */
+void servePatient() {
+    if (heapSize <= 0) {
+        printf("\nNo patients to serve.\n");
+        return;
+    }
+
+    printf("\nServing patient: %s | Age: %d | Severity: %d\n",
+           heap[0].name, heap[0].age, heap[0].severity);
+
+    heap[0] = heap[heapSize - 1];
+    heapSize--;
+    if (heapSize > 0) heapify(heapSize, 0);
+}
+
+/* Display all patients in heap order (internal heap array order) */
+void displayPatients() {
+    int i;
+    if (heapSize == 0) {
+        printf("\nNo patients in the queue.\n");
+        return;
+    }
+
+    printf("\n--- Current Patient Queue (heap order) ---\n");
+    for (i = 0; i < heapSize; i++) {
+        printf("%d) Name: %s | Age: %d | Severity: %d | Arrival: %ld\n",
+               i + 1, heap[i].name, heap[i].age, heap[i].severity, heap[i].arrival);
+    }
+}
+
+/* Helper: read a line from stdin into buffer (removes trailing newline) */
+void readLine(char *buf, int size) {
+    if (fgets(buf, size, stdin) == NULL) {
+        buf[0] = '\0';
+        return;
+    }
+    size_t len = strlen(buf);
+    if (len > 0 && buf[len - 1] == '\n') buf[len - 1] = '\0';
+}
+
+/* Helper: read integer with validation; returns 1 on success */
+int readInt(const char *prompt, int *out) {
+    char line[100];
+    while (1) {
+        printf("%s", prompt);
+        if (fgets(line, sizeof(line), stdin) == NULL) return 0;
+        char *p = line;
+        while (isspace((unsigned char)*p)) p++;
+        if (*p == '\0') continue; /* empty line */
+        char *end;
+        long val = strtol(p, &end, 10);
+        if (p == end) {
+            printf("Invalid number, try again.\n");
+            continue;
+        }
+        *out = (int)val;
+        return 1;
+    }
+}
+
+int main() {
+    int choice;
+    char name[NAME_LEN];
+    int age, severity;
+
+    while (1) {
+        printf("\n--- Hospital Emergency Room Management ---\n");
+        printf("1. Add Patient\n");
+        printf("2. Serve Patient\n");
+        printf("3. Display Patients\n");
+        printf("4. Exit\n");
+        if (!readInt("Enter your choice: ", &choice)) break;
+
+        if (choice == 1) {
+            printf("Enter name: ");
+            readLine(name, NAME_LEN);
+            if (strlen(name) == 0) {
+                printf("Name cannot be empty. Aborting add.\n");
+                continue;
+            }
+            if (!readInt("Enter age: ", &age)) { printf("Input error.\n"); continue; }
+            if (age < 0) { printf("Age cannot be negative.\n"); continue; }
+            if (!readInt("Enter severity (1-10): ", &severity)) { printf("Input error.\n"); continue; }
+            if (severity < 1 || severity > 10) { printf("Severity must be 1-10.\n"); continue; }
+            insertPatient(name, age, severity);
+        }
+        else if (choice == 2) {
+            servePatient();
+        }
+        else if (choice == 3) {
+            displayPatients();
+        }
+        else if (choice == 4) {
+            printf("\nExiting system. Goodbye!\n");
+            break;
+        }
+        else {
+            printf("\nInvalid choice. Try again.\n");
+        }
+    }
+
+    return 0;
+}
