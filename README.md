@@ -3,142 +3,94 @@
 Hospital Emergency Room Management System Manage patients based on severity (priority). Highest severity gets immediate service. Use Heap (Priority Queue)
 
 
+# 🏥 Hospital Emergency Room Management System
 
+## 📘 Overview
 
+The **Hospital Emergency Room Management System** is a C-based console program that manages patients according to their **severity level** using a **max-heap (priority queue)**.
+Patients with higher severity receive **immediate service**, simulating a real-world hospital triage system.
 
+This system ensures that:
 
+* The most critical patients are served first.
+* Patients with the same severity are served in order of arrival.
+* Staff can easily **add**, **serve**, or **view** patients currently waiting.
 
+---
 
+## ⚙️ Features
 
+✅ Add new patients with their name, age, and severity level (1–10)
+✅ Automatically prioritizes patients using a **max-heap**
+✅ Serves the most severe patient first
+✅ Maintains order for patients with equal severity (earlier arrival first)
+✅ Displays the current queue of patients
+✅ Input validation for safer and user-friendly operation
 
+---
 
+## 🧮 Data Structure Used
 
+The system uses a **Binary Max-Heap** to maintain the patient queue.
 
+* **Heap Property:**
+  Each node’s severity is higher than or equal to that of its children.
+* **Insertion:** O(log n)
+* **Serving (removal):** O(log n)
+* **Display:** O(n)
 
+Patients are compared by:
 
+1. **Severity (higher first)**
+2. **Arrival order (earlier first)** if severities are equal
 
-#include <stdio.h>
-#include <string.h>
+---
 
-#define MAX 100  /* Maximum number of patients */
+## 🧠 Logic Flow
 
-/* Structure to represent a patient */
-struct Patient {
-    char name[50];
-    int age;
-    int severity; /* Higher number = higher priority */
-};
+1. **Add Patient** → Insert into heap → Reheap Up
+2. **Serve Patient** → Remove root (max priority) → Reheap Down
+3. **Display Patients** → Traverse heap and show queue
+4. **Exit** → Safely terminate program
 
-struct Patient heap[MAX];
-int heapSize = 0;
+---
 
-/* Function to swap two patients */
-void swap(struct Patient *a, struct Patient *b) {
-    struct Patient temp = *a;
-    *a = *b;
-    *b = temp;
-}
+## 🧾 Sample Interaction
 
-/* Function to insert a new patient into the heap */
-void insertPatient(char name[], int age, int severity) {
-    int i;
-    heapSize++;
-    i = heapSize - 1;
-    strcpy(heap[i].name, name);
-    heap[i].age = age;
-    heap[i].severity = severity;
+```
+--- Hospital Emergency Room Management ---
+1. Add Patient
+2. Serve Patient
+3. Display Patients
+4. Exit
+Enter your choice: 1
+Enter name: Ramesh
+Enter age: 45
+Enter severity (1-10): 9
+Patient 'Ramesh' added (age 45, severity 9).
 
-    /* Reheap Up to maintain max-heap property */
-    while (i != 0 && heap[(i - 1) / 2].severity < heap[i].severity) {
-        swap(&heap[i], &heap[(i - 1) / 2]);
-        i = (i - 1) / 2;
-    }
-}
+Enter your choice: 1
+Enter name: Priya
+Enter age: 30
+Enter severity (1-10): 10
+Patient 'Priya' added (age 30, severity 10).
 
-/* Function to heapify (reheap down) */
-void heapify(int n, int i) {
-    int largest = i;
-    int left = 2 * i + 1;
-    int right = 2 * i + 2;
+Enter your choice: 3
+--- Current Patient Queue (heap order) ---
+1) Name: Priya | Age: 30 | Severity: 10 | Arrival: 1
+2) Name: Ramesh | Age: 45 | Severity: 9 | Arrival: 0
 
-    if (left < n && heap[left].severity > heap[largest].severity)
-        largest = left;
+Enter your choice: 2
+Serving patient: Priya | Age: 30 | Severity: 10
 
-    if (right < n && heap[right].severity > heap[largest].severity)
-        largest = right;
+Enter your choice: 4
+Exiting system. Goodbye!
+```
 
-    if (largest != i) {
-        swap(&heap[i], &heap[largest]);
-        heapify(n, largest);
-    }
-}
+---
 
-/* Function to serve the patient with highest priority */
-void servePatient() {
-    if (heapSize <= 0) {
-        printf("\nNo patients to serve.\n");
-        return;
-    }
+## 👨‍💻 Author
 
-    printf("\nServing patient: %s (Severity: %d)\n", heap[0].name, heap[0].severity);
-
-    heap[0] = heap[heapSize - 1];
-    heapSize--;
-    heapify(heapSize, 0);
-}
-
-/* Function to display all patients */
-void displayPatients() {
-    int i;
-    if (heapSize == 0) {
-        printf("\nNo patients in the queue.\n");
-        return;
-    }
-
-    printf("\n--- Current Patient Queue (by severity) ---\n");
-    for (i = 0; i < heapSize; i++) {
-        printf("Name: %s | Age: %d | Severity: %d\n", heap[i].name, heap[i].age, heap[i].severity);
-    }
-}
-
-/* Main function */
-int main() {
-    int choice;
-    char name[50];
-    int age, severity;
-
-    while (1) {
-        printf("\n--- Hospital Emergency Room Management ---\n");
-        printf("1. Add Patient\n");
-        printf("2. Serve Patient\n");
-        printf("3. Display Patients\n");
-        printf("4. Exit\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
-
-        if (choice == 1) {
-            printf("Enter name: ");
-            scanf("%s", name);
-            printf("Enter age: ");
-            scanf("%d", &age);
-            printf("Enter severity (1-10): ");
-            scanf("%d", &severity);
-            insertPatient(name, age, severity);
-        }
-        else if (choice == 2) {
-            servePatient();
-        }
-        else if (choice == 3) {
-            displayPatients();
-        }
-        else if (choice == 4) {
-            printf("\nExiting system. Goodbye!\n");
-            break;
-        }
-        else {
-            printf("\nInvalid choice. Try again.\n");
-        }
-    }
-
-    return 0;
-}
+Darshan Puranik
+Second Year B.E. (Electronics & Telecommunication)
+Savitribai Phule Pune University (SPPU)
