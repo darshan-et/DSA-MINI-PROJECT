@@ -1,0 +1,27 @@
+--- Hospital Emergency Room Management ---
+1. Add Patient
+2. Serve Patient
+3. Display Patients
+4. Exit
+Enter your choice: 1
+Enter name: Ramesh
+Enter age: 45
+Enter severity (1-10): 9
+Patient 'Ramesh' added (age 45, severity 9).
+
+Enter your choice: 1
+Enter name: Priya
+Enter age: 30
+Enter severity (1-10): 10
+Patient 'Priya' added (age 30, severity 10).
+
+Enter your choice: 3
+--- Current Patient Queue (heap order) ---
+1) Name: Priya | Age: 30 | Severity: 10 | Arrival: 1
+2) Name: Ramesh | Age: 45 | Severity: 9 | Arrival: 0
+
+Enter your choice: 2
+Serving patient: Priya | Age: 30 | Severity: 10
+
+Enter your choice: 4
+Exiting system. Goodbye!
